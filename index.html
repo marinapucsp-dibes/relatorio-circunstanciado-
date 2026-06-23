@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório Circunstanciado - Cadastro Único</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 9.5pt;
+    background: #e0e0e0;
+    color: #000;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    background: #1F4E79;
+    color: #fff;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .toolbar span { font-weight: bold; font-size: 10.5pt; flex: 1; }
+  .btn {
+    background: #fff;
+    color: #1F4E79;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 16px;
+    font-size: 9.5pt;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .btn:hover { background: #D6E4F0; }
+  .btn-red { background: #c0392b; color: #fff; }
+  .btn-red:hover { background: #96281b; }
+  .btn-mini {
+    padding: 3px 10px;
+    font-size: 8pt;
+    border-radius: 4px;
+  }
+
+  /* FOLHA A4 */
+  .page {
+    background: #fff;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 16px auto;
+    padding: 13mm 14mm;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+
+  h1 { font-size: 11pt; font-weight: bold; text-align: center; margin-bottom: 10px; line-height: 1.4; }
+  h1 .linha { display: block; }
+  h2 { font-size: 11pt; font-weight: bold; text-align: center; }
+  h3 { font-size: 11pt; font-weight: bold; text-align: center; margin-bottom: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  .bloco { border: 1.5px solid #000; margin-bottom: 0; border-bottom: none; table-layout: fixed; }
+  .bloco:last-of-type { border-bottom: 1.5px solid #000; margin-bottom: 12px; }
+  .bloco.matriz { table-layout: auto; }
+
+  td, th {
+    border: 1px solid #000;
+    padding: 4px 6px;
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  .sec {
+    background: #1F4E79;
+    color: #fff;
+    font-weight: bold;
+    text-align: left;
+    font-size: 9.3pt;
+    padding: 5px 6px;
+  }
+  .lb { font-weight: normal; }
+  .lb-curto { white-space: nowrap; }
+  .lb-bold { font-weight: bold; }
+  .italic-note { font-style: italic; font-weight: normal; }
+
+  input[type="text"] {
+    width: 100%;
+    border: none;
+    border-bottom: 1px dotted #999;
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    padding: 2px 0;
+    outline: none;
+  }
+  textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 1px dotted #999;
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    padding: 2px 0;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    min-height: 18px;
+  }
+
+  .opcoes-inline { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+  .opcao { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .opcao input[type="checkbox"],
+  .opcao input[type="radio"] { width: 13px; height: 13px; cursor: pointer; }
+  .opcao label { font-size: 9pt; cursor: pointer; }
+
+  .diligencias-lista .opcao { display: flex; width: 100%; margin-bottom: 5px; }
+
+  /* Campo condicional (ex: "Outro" / observação de Fraude) */
+  .campo-condicional {
+    display: none;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .campo-condicional.ativo { display: block; }
+  .campo-condicional input[type="text"],
+  .campo-condicional textarea {
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 4px 6px;
+    width: 100%;
+  }
+  .campo-condicional .legenda {
+    font-size: 8.2pt;
+    color: #555;
+    font-style: italic;
+    margin-bottom: 2px;
+    display: block;
+  }
+  .condicional-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Matriz Cidadão / Agente Público / Agente Externo / Não se aplica */
+  .matriz { font-size: 8.6pt; }
+  .matriz th {
+    background: #f2f2f2;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 4px;
+  }
+  .matriz td.item-label { width: 40%; }
+  .matriz td.check-cell { text-align: center; width: 15%; }
+  .matriz td.check-cell input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
+
+  .ass-linha { border-bottom: 1px solid #000; width: 280px; margin: 18px 0 2px 0; }
+  .ass-input {
+    width: 280px;
+    border: none;
+    border-bottom: 1px dotted #999;
+    font-size: 9pt;
+    padding: 2px 0;
+    margin-top: 8px;
+    display: block;
+  }
+
+  .declaracao {
+    font-size: 8.4pt;
+    text-align: justify;
+    line-height: 1.4;
+    padding: 6px 6px;
+  }
+
+  /* IMPRESSÃO */
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none !important; }
+    .page { width: 100%; margin: 0; padding: 10mm 12mm; box-shadow: none; }
+    input[type="text"], textarea { background: transparent !important; }
+    .campo-condicional { display: block !important; }
+    .btn-mini { display: none !important; }
+    input[type="checkbox"] {
+      -webkit-appearance: none; appearance: none;
+      width: 11px; height: 11px; border: 1px solid #000;
+      display: inline-block; vertical-align: middle; position: relative;
+    }
+    input[type="checkbox"]:checked::after {
+      content: "X"; position: absolute; top: -3px; left: 1px;
+      font-size: 9px; font-weight: bold;
+    }
+    input[type="radio"] {
+      -webkit-appearance: none; appearance: none;
+      width: 11px; height: 11px; border: 1px solid #000; border-radius: 50%;
+      display: inline-block; vertical-align: middle; position: relative;
+    }
+    input[type="radio"]:checked::after {
+      content: "●"; position: absolute; top: -3px; left: 1px; font-size: 9px;
+    }
+    .bloco { page-break-inside: avoid; }
+    @page { size: A4; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span>📄 Relatório Circunstanciado — Cadastro Único</span>
+  <button class="btn" onclick="imprimirRelatorio()">🖨️ Imprimir / Salvar PDF</button>
+  <button class="btn btn-red" onclick="limpar()">🗑️ Limpar Formulário</button>
+</div>
+
+<div class="page" id="pagina">
+
+  <h1>
+    <span class="linha">INSTRUÇÃO NORMATIVA SAGICAD/MDS Nº 18, DE 16 DE JANEIRO DE 2026</span>
+    <span class="linha" style="margin-top:14px;">PROCESSO SEI Nº 71000.088970/2024-52</span>
+    <span class="linha">ANEXO</span>
+  </h1>
+  <h2>RELATÓRIO CIRCUNSTANCIADO</h2>
+  <h3>INDÍCIO DE IRREGULARIDADE NO CADASTRO ÚNICO</h3>
+
+  <!-- 1. RESPONSÁVEL -->
+  <table class="bloco">
+    <tr><td colspan="4" class="sec">IDENTIFICAÇÃO DO(A) RESPONSÁVEL PELO PREENCHIMENTO</td></tr>
+    <tr>
+      <td colspan="4" style="padding:0; border:none;">
+        <table style="margin:0;">
+          <colgroup>
+            <col style="width:24%">
+            <col style="width:62%">
+            <col style="width:6%">
+            <col style="width:8%">
+          </colgroup>
+          <tr>
+            <td class="lb">Município:</td>
+            <td><input type="text" placeholder="Digite o município"></td>
+            <td class="lb">UF:</td>
+            <td><input type="text" maxlength="2" placeholder="UF"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td class="lb">Nome do(a) Responsável:</td>
+      <td colspan="3"><input type="text" placeholder="Nome completo"></td>
+    </tr>
+    <tr>
+      <td class="lb">Cargo/Função:</td>
+      <td colspan="3"><input type="text" placeholder="Cargo ou função"></td>
+    </tr>
+    <tr>
+      <td class="lb">Unidade de Atendimento:</td>
+      <td colspan="3"><input type="text" placeholder="Unidade de atendimento"></td>
+    </tr>
+    <tr>
+      <td class="lb">Telefone institucional:</td>
+      <td colspan="3"><input type="text" placeholder="(  )"></td>
+    </tr>
+    <tr>
+      <td class="lb">E-mail institucional:</td>
+      <td colspan="3"><input type="text" placeholder="email@dominio.gov.br"></td>
+    </tr>
+  </table>
+
+  <!-- 2. DENÚNCIA -->
+  <table class="bloco">
+    <tr><td colspan="2" class="sec">IDENTIFICAÇÃO DA DENÚNCIA</td></tr>
+    <tr>
+      <td class="lb" width="30%">Demandante (órgão/instituição):</td>
+      <td><input type="text" placeholder="Órgão ou instituição demandante"></td>
+    </tr>
+    <tr>
+      <td class="lb">Data de recebimento:</td>
+      <td><input type="text" placeholder="dd/mm/aaaa"></td>
+    </tr>
+    <tr>
+      <td class="lb-bold">Agente Público envolvido?</td>
+      <td>
+        <div class="opcoes-inline">
+          <div class="opcao"><input type="radio" name="agentePublico" id="agente-sim" onchange="toggleSimNao('agentePublico','agente-sim','dados-agente')"><label for="agente-sim">( ) S</label></div>
+          <div class="opcao"><input type="radio" name="agentePublico" id="agente-nao" onchange="toggleSimNao('agentePublico','agente-sim','dados-agente')"><label for="agente-nao">( ) N</label></div>
+        </div>
+      </td>
+    </tr>
+    <tr id="dados-agente" class="linha-condicional" style="display:none;">
+      <td colspan="2" style="padding:0; border:none;">
+        <table style="margin:0;">
+          <tr>
+            <td class="lb" width="30%">Nome do Agente Público envolvido:</td>
+            <td><input type="text" placeholder="Nome completo"></td>
+          </tr>
+          <tr>
+            <td class="lb">CPF do Agente Público envolvido:</td>
+            <td><input type="text" placeholder="000.000.000-00"></td>
+          </tr>
+          <tr>
+            <td class="lb">Cargo/Função do Agente Público envolvido:</td>
+            <td><input type="text" placeholder="Cargo ou função"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td class="lb">Descrição (relato sintético da denúncia, destacando principais elementos):</td>
+      <td><textarea rows="3" oninput="autoResize(this)" placeholder="Descreva o relato da denúncia"></textarea></td>
+    </tr>
+  </table>
+
+  <!-- 3. FAMÍLIA -->
+  <table class="bloco">
+    <tr><td colspan="2" class="sec">IDENTIFICAÇÃO DA FAMÍLIA</td></tr>
+    <tr>
+      <td class="lb" width="30%">Código Familiar:</td>
+      <td><textarea rows="1" oninput="autoResize(this)" placeholder="Código(s) do cadastro familiar"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lb">Nome do Responsável pela Unidade Familiar (RUF):</td>
+      <td><textarea rows="1" oninput="autoResize(this)" placeholder="Nome completo do RUF"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lb">CPF do RUF:</td>
+      <td><textarea rows="1" oninput="autoResize(this)" placeholder="CPF do RUF"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lb italic-note">Nome da pessoa do grupo familiar denunciada (se não for RUF):</td>
+      <td><input type="text" placeholder="Nome (se aplicável)"></td>
+    </tr>
+    <tr>
+      <td class="lb italic-note">CPF da pessoa do grupo familiar denunciada (se não for RUF):</td>
+      <td><input type="text" placeholder="CPF (se aplicável)"></td>
+    </tr>
+    <tr>
+      <td class="lb">Endereço:</td>
+      <td><input type="text" placeholder="Endereço completo"></td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:0; border:none;">
+        <table style="margin:0;">
+          <tr>
+            <td class="lb" width="25%">Bairro:</td>
+            <td><input type="text"></td>
+            <td class="lb" width="15%">Complemento:</td>
+            <td><input type="text"></td>
+          </tr>
+          <tr>
+            <td class="lb">Município/UF:</td>
+            <td><input type="text"></td>
+            <td class="lb">CEP:</td>
+            <td><input type="text"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Outras pessoas envolvidas -->
+  <table class="bloco">
+    <tr><td colspan="2" class="sec">OUTRA(S) PESSOA(S) DA FAMÍLIA ENVOLVIDA(S) <span style="font-weight:normal;font-style:italic;">(preencher se houver)</span></td></tr>
+    <tr><td class="lb" width="20%">Nome:</td><td><input type="text"></td></tr>
+    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><input type="text"></td><td class="lb" width="12%">CPF:</td><td><input type="text"></td></tr></table></td></tr>
+    <tr><td class="lb">Nome:</td><td><input type="text"></td></tr>
+    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><input type="text"></td><td class="lb" width="12%">CPF:</td><td><input type="text"></td></tr></table></td></tr>
+    <tr><td class="lb">Nome:</td><td><input type="text"></td></tr>
+    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><input type="text"></td><td class="lb" width="12%">CPF:</td><td><input type="text"></td></tr></table></td></tr>
+  </table>
+
+  <!-- DILIGÊNCIAS -->
+  <table class="bloco">
+    <tr><td class="sec">DILIGÊNCIAS REALIZADAS <span style="font-weight:normal;font-style:italic;">(marcar todas que se aplicam)</span></td></tr>
+    <tr>
+      <td>
+        <div class="diligencias-lista">
+          <div class="opcao"><input type="checkbox" id="dil-1"><label for="dil-1">Consultas ao sistema de Cadastro Único</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-2"><label for="dil-2">Consultas a sistemas ou bases de dados de órgãos federais e/ou estaduais</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-3"><label for="dil-3">Consultas a registros ou bases de dados do município ou Distrito Federal</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-4"><label for="dil-4">Verificação de formulários físicos e folhas-resumo arquivadas</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-5"><label for="dil-5">Convocação para entrevista em unidade da rede de atendimento</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-6"><label for="dil-6">Entrevista em unidade da rede de atendimento</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-7"><label for="dil-7">Entrevista no domicílio</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-8"><label for="dil-8">Verificação de documentos fornecidos pela família</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-9"><label for="dil-9">Contato com equipes da rede de atendimento</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-10"><label for="dil-10">Levantamento de dados administrativos do agente público (folha de pagamento, histórico funcional e variações salariais)</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-11"><label for="dil-11">Análise de cadastros incluídos ou alterados por agente público</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-12"><label for="dil-12">Busca de cadastros criados ou manipulados por agente externo</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-outro" onchange="toggleSimple('dil-outro','outro-diligencia')"><label for="dil-outro">Outra</label></div>
+          <div class="opcao"><input type="checkbox" id="dil-nenhuma"><label for="dil-nenhuma">Nenhuma</label></div>
+        </div>
+        <div class="campo-condicional" id="outro-diligencia">
+          <span class="legenda">Especifique a diligência:</span>
+          <input type="text" placeholder="Descreva a diligência realizada">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lb-bold">As diligências foram concluídas?
+        <div class="opcoes-inline" style="margin-top:4px;">
+          <div class="opcao"><input type="radio" name="diligConcluidas" id="dilig-sim" onchange="toggleSimNao('diligConcluidas','dilig-nao','motivo-naoconcluidas')"><label for="dilig-sim">( ) S</label></div>
+          <div class="opcao"><input type="radio" name="diligConcluidas" id="dilig-nao" onchange="toggleSimNao('diligConcluidas','dilig-nao','motivo-naoconcluidas')"><label for="dilig-nao">( ) N</label></div>
+        </div>
+      </td>
+    </tr>
+    <tr id="motivo-naoconcluidas" class="linha-condicional" style="display:none;">
+      <td>
+        <span class="legenda" style="display:block; font-style:italic; font-size:8.5pt; margin-bottom:4px;">Em caso negativo, por que as diligências não foram concluídas?</span>
+        <div class="diligencias-lista">
+          <div class="opcao"><input type="checkbox" id="motivo-1"><label for="motivo-1">Família não foi localizada</label></div>
+          <div class="opcao"><input type="checkbox" id="motivo-2"><label for="motivo-2">Família recusou-se a prestar informações</label></div>
+          <div class="opcao"><input type="checkbox" id="motivo-3"><label for="motivo-3">Agente Público não foi localizado</label></div>
+          <div class="opcao"><input type="checkbox" id="motivo-4"><label for="motivo-4">Agente Público recusou-se a prestar informações</label></div>
+          <div class="opcao"><input type="checkbox" id="motivo-outro" onchange="toggleSimple('motivo-outro','outro-motivo')"><label for="motivo-outro">Outro motivo</label></div>
+        </div>
+        <div class="campo-condicional" id="outro-motivo">
+          <span class="legenda">Especifique o motivo:</span>
+          <input type="text" placeholder="Descreva o motivo">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lb-bold">A fraude foi confirmada?
+        <div class="opcoes-inline" style="margin-top:4px;">
+          <div class="opcao"><input type="radio" name="fraudeConfirmada" id="fraude-sim"><label for="fraude-sim">( ) S</label></div>
+          <div class="opcao"><input type="radio" name="fraudeConfirmada" id="fraude-nao"><label for="fraude-nao">( ) N</label></div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- SITUAÇÃO IDENTIFICADA -->
+  <table class="bloco matriz">
+    <tr><td class="sec" colspan="5">SITUAÇÃO IDENTIFICADA <span style="font-weight:normal;font-style:italic;">(marcar todas que se aplicam, relacionando cada situação à autoria)</span></td></tr>
+    <tr>
+      <th style="width:40%; text-align:left;">Situação</th>
+      <th>Cidadão</th>
+      <th>Agente Público</th>
+      <th>Agente Externo</th>
+      <th>Não se aplica</th>
+    </tr>
+    <tr><td class="item-label">Omissão total de rendimentos</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Declaração de rendimentos menor do que recebe</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Incompatibilidade entre a situação familiar declarada e a situação familiar constatada</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Inclusão de pessoa(s) fictícia(s) na família</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Inclusão indevida de pessoa(s) na família</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Omissão de integrante(s) da família</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Domicílio fictício</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Domicílio incorreto</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Declaração falsa de grupo populacional (indígenas, ciganos, quilombolas, etc.)</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Dados divergentes de documentos oficiais</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Uso de documentos falsos ou alterados</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Cadastro duplicado</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Cadastro fictício criado por operador</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Alterações cadastrais indevidas feitas por operador</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Cadastro criado ou alterado para fins eleitorais ou assistencialistas</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Usurpação de credencial de acesso de operador</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Registros incluídos ou alterados sem formulário físico ou folha-resumo assinada</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Identificação de operador ou entrevistador estranho à gestão municipal ou distrital</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Inclusão no cadastro condicionada a pagamento</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr id="situacao-outra-linha"><td class="item-label">
+        <div class="condicional-header">
+          <span>Outra</span>
+        </div>
+      </td><td class="check-cell"><input type="checkbox" id="situacao-outra-cb" onchange="toggleSimple('situacao-outra-cb','situacao-outra-campo')"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td colspan="5" style="border:none; padding:0;">
+        <div class="campo-condicional" id="situacao-outra-campo" style="padding:6px;">
+          <span class="legenda">Especifique a situação:</span>
+          <input type="text" placeholder="Descreva a situação identificada">
+        </div>
+      </td></tr>
+    <tr><td class="item-label">Nenhuma</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+  </table>
+
+  <!-- FRAUDE - DATAS E ERRO MATERIAL -->
+  <table class="bloco">
+    <tr>
+      <td class="lb-bold" width="30%">Data de início da fraude</td>
+      <td width="20%"><input type="text" placeholder="dd/mm/aaaa"></td>
+      <td class="lb-bold" width="30%">Data de término da fraude</td>
+      <td width="20%"><input type="text" placeholder="dd/mm/aaaa"></td>
+    </tr>
+    <tr>
+      <td class="lb-bold" colspan="2">
+        Confirmado(s) erro(s) material(is)?
+        <div style="font-style:italic; font-weight:normal; font-size:8.3pt; margin-top:2px;">(exemplos: falha na digitação, falta de dado obrigatório, escrita incorreta do nome, endereço ou data incorreta)</div>
+      </td>
+      <td colspan="2">
+        <div class="opcoes-inline">
+          <div class="opcao"><input type="radio" name="erroMaterial" id="erro-sim"><label for="erro-sim">( ) S</label></div>
+          <div class="opcao"><input type="radio" name="erroMaterial" id="erro-nao"><label for="erro-nao">( ) N</label></div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- PROVIDÊNCIAS ADOTADAS -->
+  <table class="bloco matriz">
+    <tr><td class="sec" colspan="5">PROVIDÊNCIAS ADOTADAS <span style="font-weight:normal;font-style:italic;">(marcar todas que se aplicam, relacionando cada providência adotada à autoria)</span></td></tr>
+    <tr>
+      <th style="width:40%; text-align:left;">Providência</th>
+      <th>Cidadão</th>
+      <th>Agente Público</th>
+      <th>Agente Externo</th>
+      <th>Não se aplica</th>
+    </tr>
+    <tr><td class="item-label">Exclusão de pessoa da família</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Exclusão da família</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Preenchimento da Ficha de Exclusão</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Atualização das informações cadastrais da família</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Preenchimento do Termo de Responsabilidade</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Inclusão ou exclusão de documentos no sistema de Cadastro Único</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Bloqueio da chave de acesso do operador</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Afastamento cautelar</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Alocação em outro setor de trabalho</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Oitiva do agente público</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Instauração de sindicância ou Procedimento Administrativo Disciplinar</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Exoneração ou demissão</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Comunicação a programas usuários do Cadastro Único</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Encaminhamento ao Ministério Público Federal e/ou Polícia Federal</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td class="item-label">Outra</td><td class="check-cell"><input type="checkbox" id="providencia-outra-cb" onchange="toggleSimple('providencia-outra-cb','providencia-outra-campo')"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    <tr><td colspan="5" style="border:none; padding:0;">
+        <div class="campo-condicional" id="providencia-outra-campo" style="padding:6px;">
+          <span class="legenda">Especifique a providência:</span>
+          <input type="text" placeholder="Descreva a providência adotada">
+        </div>
+      </td></tr>
+    <tr><td class="item-label">Nenhuma</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
+  </table>
+
+  <!-- CONCLUSÃO -->
+  <table class="bloco">
+    <colgroup>
+      <col style="width:42%">
+      <col style="width:58%">
+    </colgroup>
+    <tr>
+      <td class="lb-bold">As providências foram concluídas?</td>
+      <td>
+        <div class="opcoes-inline">
+          <div class="opcao"><input type="radio" name="provConcluidas" id="prov-sim"><label for="prov-sim">( ) S</label></div>
+          <div class="opcao"><input type="radio" name="provConcluidas" id="prov-nao"><label for="prov-nao">( ) N</label></div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lb">Detalhamento das diligências realizadas e das providências adotadas, apresentando os resultados obtidos e as conclusões da apuração:</td>
+      <td><textarea rows="5" oninput="autoResize(this)" placeholder="Descreva detalhadamente os resultados e conclusões da apuração"></textarea></td>
+    </tr>
+  </table>
+
+  <!-- DECLARAÇÃO E ASSINATURA -->
+  <table class="bloco">
+    <tr>
+      <td class="declaracao">
+        Declaro, para os devidos fins, que estou ciente e de acordo com as normas e os procedimentos estabelecidos pelo Cadastro Único para Programas Sociais do Governo Federal. Comprometo-me a manter em caráter confidencial todas as informações obtidas e registradas neste Relatório Circunstanciado, abstendo-me de divulgá-las, exceto quando exigido por lei ou por órgãos de controle. Reconheço que a prestação de informações falsas ou a omissão de dados poderá acarretar responsabilidade civil, administrativa e penal, bem como demais sanções previstas na legislação vigente. Declaro ainda estar ciente de que os dados pessoais coletados e tratados no processo de apuração estão sujeitos à Lei nº 13.709/2018 (Lei Geral de Proteção de Dados Pessoais — LGPD) e serão utilizados exclusivamente para a finalidade pretendida. Declaro que li e compreendi todas as informações acima.
+      </td>
+    </tr>
+  </table>
+
+  <table style="margin-bottom:14px;">
+    <tr>
+      <td class="lb" width="20%">Data:</td>
+      <td><input type="text" placeholder="dd/mm/aaaa"></td>
+    </tr>
+  </table>
+
+  <div style="margin-top:10px;">
+    <div class="ass-linha"></div>
+    <div style="font-size:8.5pt;font-weight:bold;margin-top:2px;">Assinatura do(a) Responsável</div>
+  </div>
+
+</div><!-- fim .page -->
+
+<script>
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+document.querySelectorAll('textarea').forEach(ta => autoResize(ta));
+
+// Abre/fecha um bloco condicional (linha de tabela ou div) ligado a um par de radios Sim/Nao.
+// Mostra o bloco somente quando o radio "id que contém 'sim' ou está marcado como gatilho" é selecionado.
+function toggleSimNao(grupoName, idGatilho, blocoId) {
+  const bloco = document.getElementById(blocoId);
+  const gatilho = document.getElementById(idGatilho);
+  if (gatilho.checked) {
+    bloco.style.display = '';
+  } else {
+    bloco.style.display = 'none';
+  }
+}
+
+// Mostra/esconde campo condicional vinculado a um checkbox simples ("Outro"/"Outra")
+function toggleSimple(checkboxId, condicionalId) {
+  const cb = document.getElementById(checkboxId);
+  const condicional = document.getElementById(condicionalId);
+  if (cb.checked) {
+    condicional.classList.add('ativo');
+  } else {
+    condicional.classList.remove('ativo');
+    limparCampo(condicionalId);
+  }
+}
+
+function limparCampo(id) {
+  const cond = document.getElementById(id);
+  cond.querySelectorAll('input[type="text"], textarea').forEach(el => {
+    el.value = '';
+    if (el.tagName === 'TEXTAREA') autoResize(el);
+  });
+}
+
+function limpar() {
+  if (!confirm('Deseja limpar todos os campos do formulário?')) return;
+  document.querySelectorAll('input[type="text"], textarea').forEach(el => { el.value = ''; });
+  document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => { el.checked = false; });
+  document.querySelectorAll('textarea').forEach(el => autoResize(el));
+  document.querySelectorAll('.campo-condicional').forEach(el => el.classList.remove('ativo'));
+  document.querySelectorAll('.linha-condicional').forEach(el => el.style.display = 'none');
+}
+
+// Impressão: clona o conteúdo preenchido e abre em nova aba (contorna o bloqueio
+// de window.print() dentro de iframe/sandbox).
+function imprimirRelatorio() {
+  const estilos = Array.from(document.querySelectorAll('style'))
+    .map(s => `<style>${s.innerHTML}</style>`).join('');
+
+  const original = document.getElementById('pagina');
+  const clone = original.cloneNode(true);
+
+  const inputsOrig = original.querySelectorAll('input[type="text"]');
+  const inputsClone = clone.querySelectorAll('input[type="text"]');
+  inputsOrig.forEach((el, i) => { if (inputsClone[i]) inputsClone[i].setAttribute('value', el.value); });
+
+  const tasOrig = original.querySelectorAll('textarea');
+  const tasClone = clone.querySelectorAll('textarea');
+  tasOrig.forEach((el, i) => {
+    if (tasClone[i]) {
+      tasClone[i].textContent = el.value;
+      tasClone[i].style.height = el.scrollHeight + 'px';
+    }
+  });
+
+  const cbsOrig = original.querySelectorAll('input[type="checkbox"]');
+  const cbsClone = clone.querySelectorAll('input[type="checkbox"]');
+  cbsOrig.forEach((el, i) => { if (cbsClone[i] && el.checked) cbsClone[i].setAttribute('checked', 'checked'); });
+
+  const radiosOrig = original.querySelectorAll('input[type="radio"]');
+  const radiosClone = clone.querySelectorAll('input[type="radio"]');
+  radiosOrig.forEach((el, i) => { if (radiosClone[i] && el.checked) radiosClone[i].setAttribute('checked', 'checked'); });
+
+  // Mantém visíveis na impressão os blocos/campos condicionais que estavam abertos na tela
+  clone.querySelectorAll('.linha-condicional').forEach(el => {
+    const orig = document.getElementById(el.id);
+    if (orig && orig.style.display !== 'none') el.style.display = '';
+  });
+  clone.querySelectorAll('.campo-condicional').forEach(el => {
+    const orig = document.getElementById(el.id);
+    if (orig && orig.classList.contains('ativo')) el.classList.add('ativo');
+  });
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Circunstanciado</title>
+${estilos}
+<style>
+  body { background:#fff !important; margin:0; padding:0; }
+  .toolbar { display:none !important; }
+  .page { width:100% !important; margin:0 !important; padding:10mm 12mm !important; box-shadow:none !important; }
+  input[type="text"], textarea { background:transparent !important; }
+</style>
+</head>
+<body>
+${clone.outerHTML}
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Permita pop-ups para este site para usar a impressão. Como alternativa, use Ctrl+P / Cmd+P.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
+}
+</script>
+</body>
+</html>
