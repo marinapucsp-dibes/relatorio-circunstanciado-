@@ -87,26 +87,34 @@
   .lb-bold { font-weight: bold; }
   .italic-note { font-style: italic; font-weight: normal; }
 
-  input[type="text"] {
-    width: 100%;
-    border: none;
-    border-bottom: 1px dotted #999;
-    font-family: Arial, sans-serif;
-    font-size: 9pt;
-    padding: 2px 0;
-    outline: none;
-  }
+  /* Campos de texto: quebram linha e crescem conforme a digitação */
   textarea {
+    display: block;
     width: 100%;
     border: none;
     border-bottom: 1px dotted #999;
     font-family: Arial, sans-serif;
     font-size: 9pt;
+    line-height: 1.35;
     padding: 2px 0;
     outline: none;
     resize: none;
     overflow: hidden;
     min-height: 18px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: transparent;
+  }
+  textarea:focus { background: #f3f8fc; }
+
+  /* Versão de impressão do campo (substitui o textarea no PDF) */
+  .campo-impresso {
+    font-size: 9pt;
+    line-height: 1.35;
+    padding: 2px 0;
+    min-height: 15px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .opcoes-inline { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
@@ -124,7 +132,6 @@
     width: 100%;
   }
   .campo-condicional.ativo { display: block; }
-  .campo-condicional input[type="text"],
   .campo-condicional textarea {
     border: 1px solid #999;
     border-radius: 3px;
@@ -156,16 +163,10 @@
   .matriz td.check-cell { text-align: center; width: 15%; }
   .matriz td.check-cell input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
 
-  .ass-linha { border-bottom: 1px solid #000; width: 280px; margin: 18px 0 2px 0; }
-  .ass-input {
-    width: 280px;
-    border: none;
-    border-bottom: 1px dotted #999;
-    font-size: 9pt;
-    padding: 2px 0;
-    margin-top: 8px;
-    display: block;
-  }
+  /* Espaço reservado acima da linha para a assinatura digital */
+  .assinatura { margin: 0 auto; width: 340px; padding-top: 32mm; text-align: center; }
+  .ass-linha { border-bottom: 1px solid #000; width: 100%; }
+  .ass-legenda { font-size: 8.5pt; font-weight: bold; margin-top: 3px; }
 
   .declaracao {
     font-size: 8.4pt;
@@ -178,9 +179,8 @@
   @media print {
     body { background: #fff; }
     .toolbar { display: none !important; }
-    .page { width: 100%; margin: 0; padding: 10mm 12mm; box-shadow: none; }
-    input[type="text"], textarea { background: transparent !important; }
-    .campo-condicional { display: block !important; }
+    .page { width: 100%; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+    textarea { background: transparent !important; }
     .btn-mini { display: none !important; }
     input[type="checkbox"] {
       -webkit-appearance: none; appearance: none;
@@ -199,8 +199,12 @@
     input[type="radio"]:checked::after {
       content: "●"; position: absolute; top: -3px; left: 1px; font-size: 9px;
     }
-    .bloco { page-break-inside: avoid; }
-    @page { size: A4; margin: 0; }
+    .sec, .matriz th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
+    .sec { page-break-after: avoid; break-after: avoid; }
+    .data-assinatura { page-break-inside: avoid; break-inside: avoid; }
+    /* Margens em todas as páginas (antes a 2ª página saía colada na borda) */
+    @page { size: A4; margin: 15mm 15mm 15mm 15mm; }
   }
 </style>
 </head>
@@ -216,8 +220,6 @@
 
   <h1>
     <span class="linha">INSTRUÇÃO NORMATIVA SAGICAD/MDS Nº 18, DE 16 DE JANEIRO DE 2026</span>
-    <span class="linha" style="margin-top:14px;">PROCESSO SEI Nº 71000.088970/2024-52</span>
-    <span class="linha">ANEXO</span>
   </h1>
   <h2>RELATÓRIO CIRCUNSTANCIADO</h2>
   <h3>INDÍCIO DE IRREGULARIDADE NO CADASTRO ÚNICO</h3>
@@ -236,32 +238,32 @@
           </colgroup>
           <tr>
             <td class="lb">Município:</td>
-            <td><input type="text" placeholder="Digite o município"></td>
+            <td><textarea rows="1" placeholder="Digite o município"></textarea></td>
             <td class="lb">UF:</td>
-            <td><input type="text" maxlength="2" placeholder="UF"></td>
+            <td><textarea rows="1" maxlength="2" placeholder="UF"></textarea></td>
           </tr>
         </table>
       </td>
     </tr>
     <tr>
       <td class="lb">Nome do(a) Responsável:</td>
-      <td colspan="3"><input type="text" placeholder="Nome completo"></td>
+      <td colspan="3"><textarea rows="1" placeholder="Nome completo"></textarea></td>
     </tr>
     <tr>
       <td class="lb">Cargo/Função:</td>
-      <td colspan="3"><input type="text" placeholder="Cargo ou função"></td>
+      <td colspan="3"><textarea rows="1" placeholder="Cargo ou função"></textarea></td>
     </tr>
     <tr>
       <td class="lb">Unidade de Atendimento:</td>
-      <td colspan="3"><input type="text" placeholder="Unidade de atendimento"></td>
+      <td colspan="3"><textarea rows="1" placeholder="Unidade de atendimento"></textarea></td>
     </tr>
     <tr>
       <td class="lb">Telefone institucional:</td>
-      <td colspan="3"><input type="text" placeholder="(  )"></td>
+      <td colspan="3"><textarea rows="1" data-padrao="(11) 3291-9796">(11) 3291-9796</textarea></td>
     </tr>
     <tr>
       <td class="lb">E-mail institucional:</td>
-      <td colspan="3"><input type="text" placeholder="email@dominio.gov.br"></td>
+      <td colspan="3"><textarea rows="1" data-padrao="fiscalizacaocadunico@prefeitura.sp.gov.br">fiscalizacaocadunico@prefeitura.sp.gov.br</textarea></td>
     </tr>
   </table>
 
@@ -270,11 +272,11 @@
     <tr><td colspan="2" class="sec">IDENTIFICAÇÃO DA DENÚNCIA</td></tr>
     <tr>
       <td class="lb" width="30%">Demandante (órgão/instituição):</td>
-      <td><input type="text" placeholder="Órgão ou instituição demandante"></td>
+      <td><textarea rows="1" placeholder="Órgão ou instituição demandante"></textarea></td>
     </tr>
     <tr>
       <td class="lb">Data de recebimento:</td>
-      <td><input type="text" placeholder="dd/mm/aaaa"></td>
+      <td><textarea rows="1" placeholder="dd/mm/aaaa"></textarea></td>
     </tr>
     <tr>
       <td class="lb-bold">Agente Público envolvido?</td>
@@ -290,22 +292,22 @@
         <table style="margin:0;">
           <tr>
             <td class="lb" width="30%">Nome do Agente Público envolvido:</td>
-            <td><input type="text" placeholder="Nome completo"></td>
+            <td><textarea rows="1" placeholder="Nome completo"></textarea></td>
           </tr>
           <tr>
             <td class="lb">CPF do Agente Público envolvido:</td>
-            <td><input type="text" placeholder="000.000.000-00"></td>
+            <td><textarea rows="1" placeholder="000.000.000-00"></textarea></td>
           </tr>
           <tr>
             <td class="lb">Cargo/Função do Agente Público envolvido:</td>
-            <td><input type="text" placeholder="Cargo ou função"></td>
+            <td><textarea rows="1" placeholder="Cargo ou função"></textarea></td>
           </tr>
         </table>
       </td>
     </tr>
     <tr>
       <td class="lb">Descrição (relato sintético da denúncia, destacando principais elementos):</td>
-      <td><textarea rows="3" oninput="autoResize(this)" placeholder="Descreva o relato da denúncia"></textarea></td>
+      <td><textarea rows="3" placeholder="Descreva o relato da denúncia"></textarea></td>
     </tr>
   </table>
 
@@ -314,42 +316,42 @@
     <tr><td colspan="2" class="sec">IDENTIFICAÇÃO DA FAMÍLIA</td></tr>
     <tr>
       <td class="lb" width="30%">Código Familiar:</td>
-      <td><textarea rows="1" oninput="autoResize(this)" placeholder="Código(s) do cadastro familiar"></textarea></td>
+      <td><textarea rows="1" placeholder="Código(s) do cadastro familiar"></textarea></td>
     </tr>
     <tr>
       <td class="lb">Nome do Responsável pela Unidade Familiar (RUF):</td>
-      <td><textarea rows="1" oninput="autoResize(this)" placeholder="Nome completo do RUF"></textarea></td>
+      <td><textarea rows="1" placeholder="Nome completo do RUF"></textarea></td>
     </tr>
     <tr>
       <td class="lb">CPF do RUF:</td>
-      <td><textarea rows="1" oninput="autoResize(this)" placeholder="CPF do RUF"></textarea></td>
+      <td><textarea rows="1" placeholder="CPF do RUF"></textarea></td>
     </tr>
     <tr>
       <td class="lb italic-note">Nome da pessoa do grupo familiar denunciada (se não for RUF):</td>
-      <td><input type="text" placeholder="Nome (se aplicável)"></td>
+      <td><textarea rows="1" placeholder="Nome (se aplicável)"></textarea></td>
     </tr>
     <tr>
       <td class="lb italic-note">CPF da pessoa do grupo familiar denunciada (se não for RUF):</td>
-      <td><input type="text" placeholder="CPF (se aplicável)"></td>
+      <td><textarea rows="1" placeholder="CPF (se aplicável)"></textarea></td>
     </tr>
     <tr>
       <td class="lb">Endereço:</td>
-      <td><input type="text" placeholder="Endereço completo"></td>
+      <td><textarea rows="1" placeholder="Endereço completo"></textarea></td>
     </tr>
     <tr>
       <td colspan="2" style="padding:0; border:none;">
         <table style="margin:0;">
           <tr>
             <td class="lb" width="25%">Bairro:</td>
-            <td><input type="text"></td>
+            <td><textarea rows="1"></textarea></td>
             <td class="lb" width="15%">Complemento:</td>
-            <td><input type="text"></td>
+            <td><textarea rows="1"></textarea></td>
           </tr>
           <tr>
             <td class="lb">Município/UF:</td>
-            <td><input type="text"></td>
+            <td><textarea rows="1"></textarea></td>
             <td class="lb">CEP:</td>
-            <td><input type="text"></td>
+            <td><textarea rows="1"></textarea></td>
           </tr>
         </table>
       </td>
@@ -359,12 +361,12 @@
   <!-- Outras pessoas envolvidas -->
   <table class="bloco">
     <tr><td colspan="2" class="sec">OUTRA(S) PESSOA(S) DA FAMÍLIA ENVOLVIDA(S) <span style="font-weight:normal;font-style:italic;">(preencher se houver)</span></td></tr>
-    <tr><td class="lb" width="20%">Nome:</td><td><input type="text"></td></tr>
-    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><input type="text"></td><td class="lb" width="12%">CPF:</td><td><input type="text"></td></tr></table></td></tr>
-    <tr><td class="lb">Nome:</td><td><input type="text"></td></tr>
-    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><input type="text"></td><td class="lb" width="12%">CPF:</td><td><input type="text"></td></tr></table></td></tr>
-    <tr><td class="lb">Nome:</td><td><input type="text"></td></tr>
-    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><input type="text"></td><td class="lb" width="12%">CPF:</td><td><input type="text"></td></tr></table></td></tr>
+    <tr><td class="lb" width="20%">Nome:</td><td><textarea rows="1"></textarea></td></tr>
+    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><textarea rows="1"></textarea></td><td class="lb" width="12%">CPF:</td><td><textarea rows="1"></textarea></td></tr></table></td></tr>
+    <tr><td class="lb">Nome:</td><td><textarea rows="1"></textarea></td></tr>
+    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><textarea rows="1"></textarea></td><td class="lb" width="12%">CPF:</td><td><textarea rows="1"></textarea></td></tr></table></td></tr>
+    <tr><td class="lb">Nome:</td><td><textarea rows="1"></textarea></td></tr>
+    <tr><td class="lb">Parentesco:</td><td style="padding:0;border:none;"><table style="margin:0;"><tr><td width="50%"><textarea rows="1"></textarea></td><td class="lb" width="12%">CPF:</td><td><textarea rows="1"></textarea></td></tr></table></td></tr>
   </table>
 
   <!-- DILIGÊNCIAS -->
@@ -389,8 +391,8 @@
           <div class="opcao"><input type="checkbox" id="dil-nenhuma"><label for="dil-nenhuma">Nenhuma</label></div>
         </div>
         <div class="campo-condicional" id="outro-diligencia">
-          <span class="legenda">Especifique a diligência:</span>
-          <input type="text" placeholder="Descreva a diligência realizada">
+          <span class="legenda">Especifique a(s) outra(s) diligência(s) realizada(s):</span>
+          <textarea rows="3" placeholder="Descreva a diligência realizada"></textarea>
         </div>
       </td>
     </tr>
@@ -414,7 +416,7 @@
         </div>
         <div class="campo-condicional" id="outro-motivo">
           <span class="legenda">Especifique o motivo:</span>
-          <input type="text" placeholder="Descreva o motivo">
+          <textarea rows="1" placeholder="Descreva o motivo"></textarea>
         </div>
       </td>
     </tr>
@@ -465,7 +467,7 @@
     <tr><td colspan="5" style="border:none; padding:0;">
         <div class="campo-condicional" id="situacao-outra-campo" style="padding:6px;">
           <span class="legenda">Especifique a situação:</span>
-          <input type="text" placeholder="Descreva a situação identificada">
+          <textarea rows="1" placeholder="Descreva a situação identificada"></textarea>
         </div>
       </td></tr>
     <tr><td class="item-label">Nenhuma</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
@@ -475,9 +477,9 @@
   <table class="bloco">
     <tr>
       <td class="lb-bold" width="30%">Data de início da fraude</td>
-      <td width="20%"><input type="text" placeholder="dd/mm/aaaa"></td>
+      <td width="20%"><textarea rows="1" placeholder="dd/mm/aaaa"></textarea></td>
       <td class="lb-bold" width="30%">Data de término da fraude</td>
-      <td width="20%"><input type="text" placeholder="dd/mm/aaaa"></td>
+      <td width="20%"><textarea rows="1" placeholder="dd/mm/aaaa"></textarea></td>
     </tr>
     <tr>
       <td class="lb-bold" colspan="2">
@@ -521,7 +523,7 @@
     <tr><td colspan="5" style="border:none; padding:0;">
         <div class="campo-condicional" id="providencia-outra-campo" style="padding:6px;">
           <span class="legenda">Especifique a providência:</span>
-          <input type="text" placeholder="Descreva a providência adotada">
+          <textarea rows="1" placeholder="Descreva a providência adotada"></textarea>
         </div>
       </td></tr>
     <tr><td class="item-label">Nenhuma</td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td><td class="check-cell"><input type="checkbox"></td></tr>
@@ -544,7 +546,7 @@
     </tr>
     <tr>
       <td class="lb">Detalhamento das diligências realizadas e das providências adotadas, apresentando os resultados obtidos e as conclusões da apuração:</td>
-      <td><textarea rows="5" oninput="autoResize(this)" placeholder="Descreva detalhadamente os resultados e conclusões da apuração"></textarea></td>
+      <td><textarea rows="5" placeholder="Descreva detalhadamente os resultados e conclusões da apuração"></textarea></td>
     </tr>
   </table>
 
@@ -557,26 +559,37 @@
     </tr>
   </table>
 
+  <div class="data-assinatura">
   <table style="margin-bottom:14px;">
     <tr>
       <td class="lb" width="20%">Data:</td>
-      <td><input type="text" placeholder="dd/mm/aaaa"></td>
+      <td><textarea rows="1" placeholder="dd/mm/aaaa"></textarea></td>
     </tr>
   </table>
 
-  <div style="margin-top:10px;">
+  <div class="assinatura">
     <div class="ass-linha"></div>
-    <div style="font-size:8.5pt;font-weight:bold;margin-top:2px;">Assinatura do(a) Responsável</div>
+    <div class="ass-legenda">Assinatura do(a) Responsável</div>
+  </div>
   </div>
 
 </div><!-- fim .page -->
 
 <script>
+// Ajusta a altura do campo ao texto digitado, para que tudo fique visível.
+// Campos ocultos (scrollHeight 0) são ajustados quando forem exibidos.
 function autoResize(el) {
+  if (!el.scrollHeight) return;
   el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
+  const bordas = el.offsetHeight - el.clientHeight;
+  el.style.height = (el.scrollHeight + bordas) + 'px';
 }
-document.querySelectorAll('textarea').forEach(ta => autoResize(ta));
+function ajustarTodos(raiz) {
+  (raiz || document).querySelectorAll('textarea').forEach(autoResize);
+}
+document.addEventListener('input', e => { if (e.target.tagName === 'TEXTAREA') autoResize(e.target); });
+window.addEventListener('resize', () => ajustarTodos());
+ajustarTodos();
 
 // Abre/fecha um bloco condicional (linha de tabela ou div) ligado a um par de radios Sim/Nao.
 // Mostra o bloco somente quando o radio "id que contém 'sim' ou está marcado como gatilho" é selecionado.
@@ -585,6 +598,7 @@ function toggleSimNao(grupoName, idGatilho, blocoId) {
   const gatilho = document.getElementById(idGatilho);
   if (gatilho.checked) {
     bloco.style.display = '';
+    ajustarTodos(bloco);
   } else {
     bloco.style.display = 'none';
   }
@@ -596,6 +610,9 @@ function toggleSimple(checkboxId, condicionalId) {
   const condicional = document.getElementById(condicionalId);
   if (cb.checked) {
     condicional.classList.add('ativo');
+    ajustarTodos(condicional);
+    const campo = condicional.querySelector('textarea');
+    if (campo) campo.focus();
   } else {
     condicional.classList.remove('ativo');
     limparCampo(condicionalId);
@@ -604,19 +621,20 @@ function toggleSimple(checkboxId, condicionalId) {
 
 function limparCampo(id) {
   const cond = document.getElementById(id);
-  cond.querySelectorAll('input[type="text"], textarea').forEach(el => {
+  cond.querySelectorAll('textarea').forEach(el => {
     el.value = '';
-    if (el.tagName === 'TEXTAREA') autoResize(el);
+    autoResize(el);
   });
 }
 
 function limpar() {
   if (!confirm('Deseja limpar todos os campos do formulário?')) return;
-  document.querySelectorAll('input[type="text"], textarea').forEach(el => { el.value = ''; });
+  // Telefone e e-mail institucionais voltam ao valor padrão
+  document.querySelectorAll('textarea').forEach(el => { el.value = el.dataset.padrao || ''; });
   document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => { el.checked = false; });
-  document.querySelectorAll('textarea').forEach(el => autoResize(el));
   document.querySelectorAll('.campo-condicional').forEach(el => el.classList.remove('ativo'));
   document.querySelectorAll('.linha-condicional').forEach(el => el.style.display = 'none');
+  ajustarTodos();
 }
 
 // Impressão: clona o conteúdo preenchido e abre em nova aba (contorna o bloqueio
@@ -628,17 +646,15 @@ function imprimirRelatorio() {
   const original = document.getElementById('pagina');
   const clone = original.cloneNode(true);
 
-  const inputsOrig = original.querySelectorAll('input[type="text"]');
-  const inputsClone = clone.querySelectorAll('input[type="text"]');
-  inputsOrig.forEach((el, i) => { if (inputsClone[i]) inputsClone[i].setAttribute('value', el.value); });
-
+  // Troca cada campo por um bloco de texto, para o PDF mostrar todo o conteúdo digitado
   const tasOrig = original.querySelectorAll('textarea');
   const tasClone = clone.querySelectorAll('textarea');
   tasOrig.forEach((el, i) => {
-    if (tasClone[i]) {
-      tasClone[i].textContent = el.value;
-      tasClone[i].style.height = el.scrollHeight + 'px';
-    }
+    if (!tasClone[i]) return;
+    const div = document.createElement('div');
+    div.className = 'campo-impresso';
+    div.textContent = el.value;
+    tasClone[i].replaceWith(div);
   });
 
   const cbsOrig = original.querySelectorAll('input[type="checkbox"]');
@@ -668,8 +684,7 @@ ${estilos}
 <style>
   body { background:#fff !important; margin:0; padding:0; }
   .toolbar { display:none !important; }
-  .page { width:100% !important; margin:0 !important; padding:10mm 12mm !important; box-shadow:none !important; }
-  input[type="text"], textarea { background:transparent !important; }
+  .page { width:100% !important; min-height:0 !important; margin:0 !important; padding:0 !important; box-shadow:none !important; }
 </style>
 </head>
 <body>
